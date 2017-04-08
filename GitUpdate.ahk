@@ -3,6 +3,7 @@
 ;作者：请勿打扰
 ;功能：适用GItHub项目更新，加入脚本中即可使用自己的GitHub项目地址
 ;介绍：根据GitHub中Commitkey获取是否更新
+;注意：能够使用GitHub的朋友应该对代码都非常熟悉那么有其他需要请自行修改
 Git_Update("https://github.com/liumenggit/GitUpdate","Show")
 Return
 
@@ -12,14 +13,12 @@ Git_Update(GitUrl,GressSet:="Hide"){
 	SplitPath,GitUrl,Project_Name
 	RegRead,Reg_Commitkey,HKEY_CURRENT_USER,%Project_Name%,Commitkey
 	if GressSet=Show
-		Progress,100,% Reg_Commitkey,检查更新请稍等...,% Project_Name
+		Progress,100,% Reg_Commitkey " >>> " Git_CcommitKey.Edition,检查更新请稍等...,% Project_Name
 	Git_CcommitKey:=Git_CcommitKey(GitUrl)
 	if not Git_CcommitKey.Edition	;获取更新失败返回
 		Return
-	if not Reg_Commitkey{	;第一次更新将当前把本写入注册表
-		RegWrite,REG_SZ,HKEY_CURRENT_USER,%Project_Name%,Commitkey,% Git_CcommitKey.Edition
-	}else if (Reg_Commitkey<>Git_CcommitKey.Edition){	;存在更新开始更新
-		Progress,,,开始更新...,% Project_Name
+	if not Reg_Commitkey or (Reg_Commitkey<>Git_CcommitKey.Edition){	;存在更新开始更新
+		Progress,1 T Cx0 FM10,初始化下载,% Reg_Commitkey " >>> " Git_CcommitKey.Edition " 简介：" Git_CcommitKey.Commit,% Project_Name
 		Git_Downloand(Git_CcommitKey,Project_Name)
 	}else{
 		Progress,,,暂无更新,% Project_Name
@@ -117,6 +116,7 @@ Z_Down(url:="http://61.135.169.125/forbiddenip/forbidden.html", Proxy:="",e:="ut
 				Loop, 5
 				if (DllCall("wininet\HttpQueryInfo","uint",f, "uint", 22, "uint", &buffer, "uint", &bufferlen, "uint", 0) = 1)
 				{
+					Progress,+20
 					y:= Trim(StrGet(&buffer)," `r`n"),q:=[]
 					Loop,parse,y,`r`n
 						(x:=InStr(A_LoopField,":"))?q[SubStr(A_LoopField, 1,x-1)]:=Trim(SubStr(A_LoopField, x+1)):q[A_LoopField]:=""
@@ -127,8 +127,9 @@ Z_Down(url:="http://61.135.169.125/forbiddenip/forbidden.html", Proxy:="",e:="ut
 					break
 				}
 			}
+			Progress,100
 			While (DllCall("Wininet.dll\InternetQueryDataAvailable", "Ptr", F, "UIntP", S, "UInt", 0, "Ptr", 0) && (S > 0)) {             
-				fj	?(DllCall("Wininet.dll\InternetReadFile", "Ptr", F, "Ptr", &Buf + C, "UInt", S, "UIntP", R),C += R,DllCall("QueryPerformanceCounter", "Int64*", y),((t:=(y-x)/i) >=1)?(Test(e,Round(c/fx,2) fz " ~ " Round(((c-w)/1024)/t) "kb",Round(c/fx/percent*100)),x:=y,w:=c):"")
+				fj	?(DllCall("Wininet.dll\InternetReadFile", "Ptr", F, "Ptr", &Buf + C, "UInt", S, "UIntP", R),C += R,DllCall("QueryPerformanceCounter", "Int64*", y),((t:=(y-x)/i) >=1)?(Test(e,Round(c/fx,2) fz " | " Round(((c-w)/1024)/t) "KB/秒",Round(c/fx/percent*100)),x:=y,w:=c):"")
 					:(VarSetCapacity(b, c+s, 0),DllCall("RtlMoveMemory", "ptr", &b, "ptr", &buf, "ptr", c),DllCall("wininet\InternetReadFile", "ptr", f, "ptr", &b+c, "uint", s, "uint*", r),VarSetCapacity(buf, c+=r, 0), DllCall("RtlMoveMemory", "ptr", &buf, "ptr", &b, "ptr", c))
 			}
 			(q?((fj=c)?"":q["Error"]:=c):""),(File?(o.rawWrite(buf, c), o.close()):""), DllCall("wininet\InternetCloseHandle", "ptr", f)
@@ -137,5 +138,5 @@ Z_Down(url:="http://61.135.169.125/forbiddenip/forbidden.html", Proxy:="",e:="ut
 	return (File or IsByRef(buf)?q:StrGet(&buf, c>>(e="utf-16"||e="cp1200"), e))
 }
 Test(A,b,c){
-Progress,%c%,%b%,%a%,%a%
+	Progress,%c%,%b%
 }
