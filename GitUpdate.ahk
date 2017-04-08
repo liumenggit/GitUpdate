@@ -12,14 +12,14 @@ Git_Update(GitUrl,GressSet:="Hide"){
 	SplitPath,GitUrl,Project_Name
 	RegRead,Reg_Commitkey,HKEY_CURRENT_USER,%Project_Name%,Commitkey
 	if GressSet=Show
-		Progress,ZH0,,检查更新请稍等...,% Project_Name
+		Progress,100,% Reg_Commitkey,检查更新请稍等...,% Project_Name
 	Git_CcommitKey:=Git_CcommitKey(GitUrl)
 	if not Git_CcommitKey.Edition	;获取更新失败返回
 		Return
 	if not Reg_Commitkey{	;第一次更新将当前把本写入注册表
 		RegWrite,REG_SZ,HKEY_CURRENT_USER,%Project_Name%,Commitkey,% Git_CcommitKey.Edition
 	}else if (Reg_Commitkey<>Git_CcommitKey.Edition){	;存在更新开始更新
-		Progress,ZH0,,开始更新...,% Project_Name
+		Progress,,,开始更新...,% Project_Name
 		Git_Downloand(Git_CcommitKey,Project_Name)
 	}else{
 		Progress,,,暂无更新,% Project_Name
@@ -137,5 +137,5 @@ Z_Down(url:="http://61.135.169.125/forbiddenip/forbidden.html", Proxy:="",e:="ut
 	return (File or IsByRef(buf)?q:StrGet(&buf, c>>(e="utf-16"||e="cp1200"), e))
 }
 Test(A,b,c){
-Progress,%c% ZH20,%b%,%a%,%a%
+Progress,%c%,%b%,%a%,%a%
 }
