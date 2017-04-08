@@ -15,8 +15,10 @@ Git_Update(GitUrl,GressSet:="Hide"){
 	if GressSet=Show
 		Progress,100,% Reg_Commitkey " >>> " Git_CcommitKey.Edition,检查更新请稍等...,% Project_Name
 	Git_CcommitKey:=Git_CcommitKey(GitUrl)
-	if not Git_CcommitKey.Edition	;获取更新失败返回
-		Return
+	if not Git_CcommitKey.Edition{	;获取更新失败返回
+		Progress,Off
+		return
+	}
 	if not Reg_Commitkey or (Reg_Commitkey<>Git_CcommitKey.Edition){	;存在更新开始更新
 		Progress,1 T Cx0 FM10,初始化下载,% Reg_Commitkey " >>> " Git_CcommitKey.Edition " 简介：" Git_CcommitKey.Commit,% Project_Name
 		Git_Downloand(Git_CcommitKey,Project_Name)
