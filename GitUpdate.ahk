@@ -33,7 +33,10 @@ Git_Downloand(DownloandInfo,Project_Name){
 	DownUrl:="https://github.com" DownloandInfo.Down
 	SplitPath,A_ScriptName,,,,A_name
 	SplitPath,DownUrl,DownName,,,OutNameNoExt
-	Z_Down(DownUrl,"",A_name,A_Temp "\" DownName)
+	if not Z_Down(DownUrl,"",A_name,A_Temp "\" DownName){
+		Progress,Off
+		return
+	}
 	UncoilUrl:=A_Temp "\" A_NowUTC
 	SmartZip(A_Temp "\" DownName,UncoilUrl)
 	FileDelete,% A_Temp "\" DownName
