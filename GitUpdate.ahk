@@ -12,13 +12,13 @@ Git_Update(GitUrl,GressSet:="Hide"){
 		Return
 	SplitPath,GitUrl,Project_Name
 	RegRead,Reg_Commitkey,HKEY_CURRENT_USER,%Project_Name%,Commitkey
-	;MsgBox % "reg" Reg_Commitkey "Project_Name" Project_Name
+	;MsgBox % "reg" Reg_Commitkey "`nProject_Name" Project_Name
 	if GressSet=Show
 		Progress,100,% Reg_Commitkey " >>> " Git_CcommitKey.Edition,检查更新请稍等...,% Project_Name
 	Git_CcommitKey:=Git_CcommitKey(GitUrl)
 	;MsgBox % Git_CcommitKey.Down
 	if not Git_CcommitKey.Down{	;获取更新失败返回
-		Progress,100,% Reg_Commitkey " >>> " Git_CcommitKey.Edition,检查更新失败,% Project_Name
+		Progress,100,% Reg_Commitkey " >>> " Git_CcommitKey.Key,检查更新失败,% Project_Name
 		Sleep 500
 		Progress,Off
 		return
@@ -36,6 +36,7 @@ Git_Update(GitUrl,GressSet:="Hide"){
 
 Git_Downloand(DownloandInfo,Project_Name){
 	DownUrl:="https://codeload.github.com" DownloandInfo.Down
+	;MsgBox % DownUrl
 	SplitPath,A_ScriptName,,,,A_name
 	SplitPath,DownUrl,DownName,,,OutNameNoExt
 	DownName:=DownName ".zip"
@@ -104,13 +105,15 @@ Git_CcommitKey(Project_Url){
 	{
 		whr.Send()
 		whr.WaitForResponse()
+		Clipboard:=whr.ResponseText
 		; RegExMatch(whr.ResponseText,"`a)(?<=""sha btn btn-outline BtnGroup-item"">\n\s{6})\S{7}(?=\n)",NewEdition)
-		RegExMatch(whr.ResponseText,"`a)<.*aria-label=""(.*?)"".*data-pjax=""true"".*href=""(.*?)""",Downloand)
+		;RegExMatch(whr.ResponseText,"`a)<.*aria-label=""(.*?(\n\r\n|.).*?)"".*data-pjax=""true"".*href=""(.*?)""",Downloand)
+		RegExMatch(whr.ResponseText,"`a)<.*aria-label=""(.*?)(\n\n\S.*?|.*?)"".*data-pjax=""true"".*href=""(.*?)""",Downloand)
 		RegExMatch(whr.ResponseText,"`a)relative-time.*datetime=""(.*?)""",Committitle)
-		Downloand2 := StrReplace(Downloand2,"commit","zip")
-		Key:=SubStr(Downloand2,-39)
-		;MsgBox % Downloand1 "`n" Downloand2 "`n" Committitle1 "`n" Key "`n-------------------------"
-		Return {Edition:Downloand1,Down:Downloand2,Commit:Committitle1,Key:Key}
+		Downloand3 := StrReplace(Downloand3,"commit","zip")
+		Key:=SubStr(Downloand3,-39)
+		;MsgBox % Downloand1 "`n" Downloand3 "`n" Committitle1 "`n" Key "`n-------------------------"
+		Return {Edition:Downloand1,Down:Downloand3,Commit:Committitle1,Key:Key}
 	}catch e {
 		Return
 	}
